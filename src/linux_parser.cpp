@@ -123,12 +123,10 @@ vector<float> LinuxParser::CpuUtilization() {
     return result;
 }
 
-// TODO: Read and return the total number of processes
 int LinuxParser::TotalProcesses() {
   return GetProcessKey("processes");
 }
 
-// TODO: Read and return the number of running processes
 int LinuxParser::RunningProcesses() {
   return GetProcessKey("procs_running");
 }
@@ -158,13 +156,43 @@ string LinuxParser::Command(int pid[[maybe_unused]]) { return string(); }
 // REMOVE: [[maybe_unused]] once you define the function
 string LinuxParser::Ram(int pid[[maybe_unused]]) { return string(); }
 
-// TODO: Read and return the user ID associated with a process
-// REMOVE: [[maybe_unused]] once you define the function
-string LinuxParser::Uid(int pid[[maybe_unused]]) { return string(); }
+string LinuxParser::Uid(int pid) {
+    string line, key, value;
+    std::ifstream filestream(kProcDirectory + std::to_string(pid) + kStatusFilename);
+    if (filestream.is_open()) {
+      while (std::getline(filestream, line)) {
+        std::remove(line.begin(), line.end(), ':');
+        std::istringstream linestream(line);
+        if (linestream >> key >> value) {
+          if (key == "Uid") {
+            return value;
+          }
+        }
+      }
+    }
+    return "";
+}
 
-// TODO: Read and return the user associated with a process
-// REMOVE: [[maybe_unused]] once you define the function
-string LinuxParser::User(int pid[[maybe_unused]]) { return string(); }
+string LinuxParser::User(int pid) {
+    string line;
+    int key;
+    string X, user;
+    std::ifstream filestream(kPasswordPath);
+    if (filestream.is_open()) {
+      while (std::getline(filestream, line)) {
+        std::replace(line.begin(), line.end(), ' ', '_');
+        std::replace(line.begin(), line.end(), ':', ' ');
+        std::istringstream linestream(line);
+        if (linestream >> user >> X >> key) {
+          if (key == pid) {
+            std::replace(user.begin(), user.end(), '_', ' ');
+            return user;
+          }
+        }
+      }
+    }
+    return "";
+}
 
 // TODO: Read and return the uptime of a process
 // REMOVE: [[maybe_unused]] once you define the function
