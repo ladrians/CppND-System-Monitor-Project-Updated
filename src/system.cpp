@@ -37,8 +37,9 @@ vector<Process>& System::Processes() {
     return processes_;
 }
 
-// TODO: Return the system's kernel identifier (string)
-std::string System::Kernel() { return string(); }
+std::string System::Kernel() {
+    return LinuxParser::Kernel();
+}
 
 float System::MemoryUtilization() {
     float total = LinuxParser::MemoryUtilization("MemTotal");
@@ -46,8 +47,9 @@ float System::MemoryUtilization() {
     return (total - free) / total;
 }
 
-// TODO: Return the operating system name
-std::string System::OperatingSystem() { return string(); }
+std::string System::OperatingSystem() {
+    return LinuxParser::OperatingSystem();
+}
 
 int System::RunningProcesses() {
     return LinuxParser::RunningProcesses();
@@ -57,5 +59,6 @@ int System::TotalProcesses() {
     return LinuxParser::TotalProcesses();
 }
 
-// TODO: Return the number of seconds since the system started running
-long int System::UpTime() { return 0; }
+long int System::UpTime() {
+    return LinuxParser::UpTime();
+}
