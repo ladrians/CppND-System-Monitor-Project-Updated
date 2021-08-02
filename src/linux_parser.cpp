@@ -84,9 +84,18 @@ float LinuxParser::MemoryUtilization(std::string str) {
   return val;
 }
 
-// TODO: Read and return the system uptime
 long LinuxParser::UpTime() {
-  return 0;
+  long uptime{0};
+  string line, uptime_string;
+  std::ifstream filestream(kProcDirectory + kUptimeFilename);
+  if(filestream.is_open())
+  {
+    std::getline(filestream, line);
+    std::istringstream linestream(line);
+    linestream >> uptime_string;
+    uptime = stof(uptime_string);
+  }
+  return uptime;
 }
 
 // TODO: Read and return the number of jiffies for the system
@@ -148,15 +157,25 @@ int LinuxParser::GetProcessKey(std::string str) {
   return value;
 }
 
-// TODO: Read and return the command associated with a process
-// REMOVE: [[maybe_unused]] once you define the function
-string LinuxParser::Command(int pid[[maybe_unused]]) { return string(); }
+string LinuxParser::Command(int pid) {
+  string line = "";
+  std::ifstream filestream(kProcDirectory + std::to_string(pid) + kCmdlineFilename);
+  if(filestream.is_open())
+  {
+    std::getline(filestream, line);
+  }
+  return line;
+}
 
-// TODO: Read and return the memory used by a process
-// REMOVE: [[maybe_unused]] once you define the function
-string LinuxParser::Ram(int pid[[maybe_unused]]) { return string(); }
+string LinuxParser::Ram(int pid) {
+  return GetProcessKeyById(pid, "VmSize");
+}
 
 string LinuxParser::Uid(int pid) {
+  return GetProcessKeyById(pid, "Uid");
+}
+
+string LinuxParser::GetProcessKeyById(int pid, string str) {
     string line, key, value;
     std::ifstream filestream(kProcDirectory + std::to_string(pid) + kStatusFilename);
     if (filestream.is_open()) {
@@ -164,7 +183,7 @@ string LinuxParser::Uid(int pid) {
         std::remove(line.begin(), line.end(), ':');
         std::istringstream linestream(line);
         if (linestream >> key >> value) {
-          if (key == "Uid") {
+          if (key == str) {
             return value;
           }
         }
