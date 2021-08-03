@@ -34,7 +34,9 @@ string Process::Ram() {
 string Process::User() {
     if (user_ == "") {
         string uid = LinuxParser::Uid(pid_);
-        user_ = LinuxParser::User(stoi(uid));
+        if (std::all_of(uid.begin(), uid.end(), isdigit)) {
+            user_ = LinuxParser::User(stoi(uid));
+        }
     }
     return user_;
 }
