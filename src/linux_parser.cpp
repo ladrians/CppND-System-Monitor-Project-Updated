@@ -100,18 +100,64 @@ long LinuxParser::UpTime() {
 
 // TODO: Read and return the number of jiffies for the system
 long LinuxParser::Jiffies() {
-  return 0;
+  long active = ActiveJiffies();
+  long idle = IdleJiffies();
+  return active + idle;
 }
 
-// TODO: Read and return the number of active jiffies for a PID
-// REMOVE: [[maybe_unused]] once you define the function
-long LinuxParser::ActiveJiffies(int pid[[maybe_unused]]) { return 0; }
+long LinuxParser::ActiveJiffies(int pid) {
+  string item, line;
+  long active = 0;
 
-// TODO: Read and return the number of active jiffies for the system
-long LinuxParser::ActiveJiffies() { return 0; }
+  std::ifstream filestream(kProcDirectory + to_string(pid) + kStatFilename);
+  if(filestream.is_open())
+  {
+    std::getline(filestream, line);
+    std::istringstream linestream(line);
+    for(int i=1; i<=17; i++)
+    {
+      linestream >> item;
+      if(i >=14 && i<=17) // get #14_utime + #15_stime + #16_cutime + #17_cstime
+      {
+        active += std::stol(item);
+      }
+    }
+  }
+  return active;
+}
 
-// TODO: Read and return the number of idle jiffies for the system
-long LinuxParser::IdleJiffies() { return 0; }
+long LinuxParser::ActiveJiffies() {
+  long active = 0;
+  vector<CPUStates> states = {
+    kUser_,
+    kNice_,
+    kSystem_,
+    kIRQ_,
+    kSoftIRQ_,
+    kSteal_,
+    kGuest_,
+    kGuestNice_
+  };
+
+  vector<float> cpu_utilization = CpuUtilization();
+  for (auto state: states) {
+    active += cpu_utilization[state];
+  }
+  return active;
+}
+
+long LinuxParser::IdleJiffies() {
+  long idle = 0;
+  vector<CPUStates> idle_states = {
+    kIdle_,
+    kIOwait_,
+  };
+  vector<float> usage = CpuUtilization();
+  for (auto state: idle_states) {
+    idle += usage[state];
+  }
+  return idle;
+}
 
 vector<float> LinuxParser::CpuUtilization() {
     string key;
@@ -168,7 +214,11 @@ string LinuxParser::Command(int pid) {
 }
 
 string LinuxParser::Ram(int pid) {
-  return GetProcessKeyById(pid, "VmSize");
+  string ret = GetProcessKeyById(pid, "VmSize");
+  if (std::all_of(ret.begin(), ret.end(), isdigit))
+    return ret;
+  else
+    return "0";
 }
 
 string LinuxParser::Uid(int pid) {

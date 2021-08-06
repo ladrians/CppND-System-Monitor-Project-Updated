@@ -17,8 +17,28 @@ using std::vector;
 
 int Process::Pid() { return pid_; }
 
-// TODO: Return this process's CPU utilization
-float Process::CpuUtilization() { return 0; }
+float Process::CpuUtilization() {
+    if (pid_ <= 0) {
+        return 0;
+    }
+
+    float utilization = 0;
+    long process_active_jiffies{LinuxParser::ActiveJiffies(pid_)};
+    float process_active = process_active_jiffies/sysconf(_SC_CLK_TCK);
+
+    long system_uptime_seconds{LinuxParser::UpTime()};
+
+    long process_uptime_jiffies{LinuxParser::UpTime(pid_)};
+    long process_uptime_seconds = process_uptime_jiffies/sysconf(_SC_CLK_TCK);
+
+    float time_elapsed = system_uptime_seconds - process_uptime_seconds;
+
+    if (time_elapsed != 0)
+    {
+        utilization = (process_active/time_elapsed) * 1.0;
+    }
+	return utilization;
+}
 
 string Process::Command() {
     return LinuxParser::Command(pid_);
@@ -30,7 +50,6 @@ string Process::Ram() {
     return "";
 }
 
-// TODO: Return the user (name) that generated this process
 string Process::User() {
     if (user_ == "") {
         string uid = LinuxParser::Uid(pid_);
@@ -41,7 +60,6 @@ string Process::User() {
     return user_;
 }
 
-// TODO: Return the age of this process (in seconds)
 long int Process::UpTime() {
     return LinuxParser::UpTime(pid_);
     //return System::UpTime() - LinuxParser::UpTime(pid_) / sysconf(_SC_CLK_TCK);
