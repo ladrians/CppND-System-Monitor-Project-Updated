@@ -218,7 +218,7 @@ string LinuxParser::Ram(int pid) {
   if (std::all_of(ret.begin(), ret.end(), isdigit))
     return ret;
   else
-    return "0";
+    return "";
 }
 
 string LinuxParser::Uid(int pid) {

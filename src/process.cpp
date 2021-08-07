@@ -46,7 +46,13 @@ string Process::Command() {
 
 string Process::Ram() {
     if(pid_ > 0)
-        return std::to_string(stoi(LinuxParser::Ram(pid_)) / TO_KB);
+    {
+        string ramAsString = LinuxParser::Ram(pid_);
+        if(ramAsString != "")
+        {
+            return std::to_string(stoi(ramAsString) / TO_KB);
+        }
+    }
     return "";
 }
 
