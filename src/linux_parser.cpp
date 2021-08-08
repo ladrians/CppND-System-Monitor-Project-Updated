@@ -168,7 +168,7 @@ vector<float> LinuxParser::CpuUtilization() {
       while (std::getline(stream, line)) {
         std::istringstream linestream(line);
         if (linestream >> key >> user >> nice >> system >> idle) {
-          if (key == "cpu") {
+          if (key == filterCpu) {
               return { user, nice, system, idle};
           }
         }
@@ -178,11 +178,11 @@ vector<float> LinuxParser::CpuUtilization() {
 }
 
 int LinuxParser::TotalProcesses() {
-  return GetProcessKey("processes");
+  return GetProcessKey(filterProcesses);
 }
 
 int LinuxParser::RunningProcesses() {
-  return GetProcessKey("procs_running");
+  return GetProcessKey(filterRunningProcesses);
 }
 
 int LinuxParser::GetProcessKey(std::string str) {
@@ -213,7 +213,7 @@ string LinuxParser::Command(int pid) {
 }
 
 string LinuxParser::Ram(int pid) {
-  string ret = GetProcessKeyById(pid, "VmSize");
+  string ret = GetProcessKeyById(pid, filterProcMem);
   if (std::all_of(ret.begin(), ret.end(), isdigit))
     return ret;
   else
@@ -221,7 +221,7 @@ string LinuxParser::Ram(int pid) {
 }
 
 string LinuxParser::Uid(int pid) {
-  return GetProcessKeyById(pid, "Uid");
+  return GetProcessKeyById(pid, filterUID);
 }
 
 string LinuxParser::GetProcessKeyById(int pid, string str) {
