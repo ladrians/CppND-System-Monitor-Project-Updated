@@ -98,7 +98,6 @@ long LinuxParser::UpTime() {
   return uptime;
 }
 
-// TODO: Read and return the number of jiffies for the system
 long LinuxParser::Jiffies() {
   long active = ActiveJiffies();
   long idle = IdleJiffies();
@@ -263,6 +262,23 @@ string LinuxParser::User(int pid) {
     return "";
 }
 
-// TODO: Read and return the uptime of a process
-// REMOVE: [[maybe_unused]] once you define the function
-long LinuxParser::UpTime(int pid[[maybe_unused]]) { return 0; }
+long LinuxParser::UpTime(int pid) {
+    long uptime = 0;
+    string line = "";
+    string current = "";
+    std::ifstream stream(kProcDirectory + to_string(pid) + kStatFilename);
+    if (stream.is_open())
+    {
+      std::getline(stream, line);
+      std::istringstream linestream(line);
+      for (int i=1; i <= 22; i++)
+      {
+        linestream >> current;
+        if (i == 22) // relates to start time
+        {
+          uptime = stol(current);
+        }
+      }
+    }
+    return uptime;
+}
