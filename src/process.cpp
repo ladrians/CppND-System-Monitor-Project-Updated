@@ -67,8 +67,9 @@ string Process::User() {
 }
 
 long int Process::UpTime() {
-    return LinuxParser::UpTime(pid_);
-    //return System::UpTime() - LinuxParser::UpTime(pid_) / sysconf(_SC_CLK_TCK);
+    long pid_uptime = LinuxParser::UpTime(pid_);
+    long sys_uptime = System::UpTime();
+    return sys_uptime - pid_uptime / sysconf(_SC_CLK_TCK);
 }
 
 bool Process::operator<(Process const& a) const {

@@ -93,7 +93,7 @@ long LinuxParser::UpTime() {
     std::getline(filestream, line);
     std::istringstream linestream(line);
     linestream >> uptime_string;
-    uptime = stof(uptime_string);
+    uptime = stol(uptime_string);
   }
   return uptime;
 }
