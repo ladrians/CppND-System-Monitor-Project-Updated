@@ -30,7 +30,10 @@ vector<Process>& System::Processes() {
         }
         if (containsPID == false) {
           Process p(pid);
-          currentProcesses.push_back(p);
+          if (p.Command() != "")
+          {
+            currentProcesses.push_back(p);
+          }
         }
     }
     processes_.swap(currentProcesses);
