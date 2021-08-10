@@ -4,12 +4,16 @@
 
 using std::string;
 
+// Ideas from https://knowledge.udacity.com/questions/155686
+const int SEC_IN_MIN = 60;
+const int SEC_IN_HR = 3600;
+
 string Format::ElapsedTime(long s) {
     // INPUT: Long int measuring seconds
     string elapsed_time = "";
-    int hours = s / 3600;
-    int minutes = s / 60;
-    int seconds = s % 60;
+    int hours = s / SEC_IN_HR;
+    int minutes = s / SEC_IN_MIN - hours * SEC_IN_MIN;
+    int seconds = s - minutes * SEC_IN_MIN - hours * SEC_IN_HR;
 
     // OUTPUT: HH:MM:SS
     string hh = (hours > 9 ? string() : "0") + std::to_string(hours);
